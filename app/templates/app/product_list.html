@@ -1,0 +1,344 @@
+{% extends "app/layout.html" %}
+{% load static %}
+
+{% block content %}
+    <h1>Наши товары</h1>
+     <div id="cart-icon">
+        {% if user.is_authenticated %}
+        <a class="cart" href="{% url 'view_cart' %}">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20"><path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>
+            <span>Корзина ({{ quantity }} шт., {{ total_price }} руб.)</span>
+        </a>
+        {% endif %}
+
+        <a class="category {% if not category_id %}active{% endif %}" href="{% url 'product_list' %}">
+            <span>Все товары</span>
+        </a>
+
+        {% for category in categories %}
+        <a class="category {% if category_id == category.id %}active{% endif %}" href="{% url 'product_list' category_id=category.id %}">
+            <span>{{ category.name }}</span>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div id="product-list">
+        {% for product in products %}
+            <div class="product-card">
+                {% if product.image and product.image != 'temp.jpg' %}
+                <img class="product-image" src="{{ product.image.url }}" alt="{{ product.name }}">
+                {% endif %}
+                <h3>{{ product.name }}</h3>
+                <h5>{{ product.category }}</h5>
+                <p class="product-description">{{ product.description }}</p>
+
+                <div class="empty"></div>
+
+                <div class="product-details">
+                    <p class="product-price">
+                        Цена: {{ product.price }} руб.
+                    </p>
+
+                    {% if user.is_authenticated %}
+                    <div id="add-to-cart-{{ product.id }}" class="add-to-cart-controls">
+                        <form id="add-to-cart-form-{{ product.id }}" class="add-to-cart-form" method="post" data-product-id="{{ product.id }}" onsubmit="addToCart({{ product.id }}); return false;">
+                            {% csrf_token %}
+                            <button class="add-to-cart-btn submit" type="submit" title="Добавить в корзину">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M280-80q-33 0-56.5-23.5T200-160q0-33 23.5-56.5T280-240q33 0 56.5 23.5T360-160q0 33-23.5 56.5T280-80Zm400 0q-33 0-56.5-23.5T600-160q0-33 23.5-56.5T680-240q33 0 56.5 23.5T760-160q0 33-23.5 56.5T680-80ZM246-720l96 200h280l110-200H246Zm-38-80h590q23 0 35 20.5t1 41.5L692-482q-11 20-29.5 31T622-440H324l-44 80h480v80H280q-45 0-68-39.5t-2-78.5l54-98-144-304H40v-80h130l38 80Zm134 280h280-280Z"/></svg>
+                            </button>
+    
+                            <button type="button" class="add-to-cart-btn remove" title="Добавить 1" onclick="el = document.getElementById('id_quantity_{{ product.id }}'); el.value = Math.max(0, el.value - 1);">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M560-240 320-480l240-240 56 56-184 184 184 184-56 56Z"/></svg>
+                            </button>
+    
+                            <input type="number" class="add-to-cart-input" id="id_quantity_{{ product.id }}" name="quantity" value="1" min="0">
+    
+                            <button type="button" class="add-to-cart-btn add" title="Убрать 1" onclick="el = document.getElementById('id_quantity_{{ product.id }}'); el.value = Number(el.value) + 1">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 -960 960 960" width="24"><path d="M504-480 320-664l56-56 240 240-240 240-56-56 184-184Z"/></svg>
+                            </button>
+                        </form>
+    
+                        {% for cart_item in cart_items %}
+                            {% if cart_item.product == product and cart_item.quantity %}
+                            <output id="ordered-{{ product.id }}" class="add-to-cart-output" for="add-to-cart-form-{{ product.id }}">
+                                <span>в корзине {{ cart_item.quantity }} ед.</span>
+                            </output>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="add-to-cart-text">войдите для покупки</p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script>
+         function addToCart(productId) {
+            var quantity = document.getElementById('id_quantity_' + productId).value;
+
+            if (quantity < 0) {
+                alert('Количество должно быть больше 0');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('quantity', quantity);
+
+            console.log('Sending request to add to cart...');
+            console.log('Product ID:', productId);
+            console.log('Quantity:', quantity);
+
+            fetch('/add_to_cart/' + productId + '/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                var output = document.getElementById('ordered-' + productId);
+                if (!output) {
+                    var div = document.getElementById('add-to-cart-' + productId);
+                    output = document.createElement('output');
+                    output.id = 'ordered-' + productId;
+                    output.className = 'add-to-cart-output';
+                    output.setAttribute('for', 'add-to-cart-form-' + productId);
+                    div.appendChild(output);
+                }
+
+                output.textContent = 'в корзине ' + quantity + ' ед.';
+                if (quantity == 0) {
+                    output.remove();
+                    alert('Товар убран из корзины. Общая стоимость корзины: ' + data.total_price + ' руб.');
+                }
+
+                else alert('Товар добавлен в корзину. Общая стоимость корзины: ' + data.total_price + ' руб.');
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+            });
+
+            console.log('Done');
+        }
+
+         function toggleCart() {
+            var cartContainer = document.getElementById('cart-container');
+            cartContainer.style.display = (cartContainer.style.display === 'none' || cartContainer.style.display === '') ? 'block' : 'none';
+
+
+            if (cartContainer.style.display === 'block') {
+                fetch('/get_cart_contents/')
+                .then(response => response.text())
+                .then(data => {
+                    cartContainer.innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Ошибка:', error);
+                });
+            }
+        }
+    </script>
+    
+    <style>
+        #cart-icon {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        #cart-icon .cart {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            gap: 4px;
+            color: #4c82e7;
+            fill: #4c82e7;
+            padding: 6px;
+            text-decoration: none;
+            margin-right: 10px;
+            border: 1px solid #4c82e7;
+        }
+
+            #cart-icon .cart:hover {
+                background: #e9f1ff;
+            }
+
+        #cart-icon .category {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            gap: 4px;
+            color: #754ce7;
+            fill: #754ce7;
+            padding: 6px;
+            text-decoration: none;
+            border: 1px solid #754ce7;
+        }
+
+            #cart-icon .category:not(.active):hover {
+                background: #e6dff8;
+            }
+        
+            #cart-icon .category.active {
+                cursor: default;
+                pointer-events: none;
+                opacity: .5;
+            }
+
+
+        #product-list {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: stretch;
+        }
+
+        .product-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            width: 250px; /* Ширина карточки */
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .product-image {
+            max-width: 100%;
+            height: auto;
+        }
+
+        h5 {
+            color: #af4c72;
+        }
+
+        .product-description {
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .empty {
+            flex: 1;
+        }
+
+        .product-price {
+            font-size: 16px;
+            border-top: 1px solid #ddd;
+            padding-top: 5px;
+            margin-top: 5px;
+        }
+
+        .add-to-cart-controls {
+            width: 100%;
+        }
+
+        .add-to-cart-form {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            align-self: center;
+            gap: 1px;
+            width: 100%;
+            border: none;
+        }
+
+        .add-to-cart-input {
+            display: flex;
+            flex-grow: 1;
+            flex-shrink: 1;
+            text-align: center;
+            box-sizing: border-box;
+            min-height: auto;
+            width: 50px;
+            height: 40px;
+            outline: none;
+            -moz-appearance: textfield;
+            border: 1px solid #aaaaaa;
+        }
+        .add-to-cart-input:invalid {
+            background: #e4d1d1;
+            border: 1px solid #af4c4c;
+        }
+
+        .add-to-cart-input::-webkit-outer-spin-button,
+        .add-to-cart-input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .add-to-cart-btn {
+            background-color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 40px;
+            height: 40px;
+        }
+
+            .add-to-cart-btn:hover {
+                background-color: #DDD;
+            }
+
+            .add-to-cart-btn.submit {
+                fill: #4caf50;
+                border: 1px solid #4caf50;
+            }
+
+            .add-to-cart-btn.remove {
+                fill: #af4c4c;
+                border: 1px solid #af4c4c;
+            }
+
+            .add-to-cart-btn.add {
+                fill: #4c6faf;
+                border: 1px solid #4c6faf;
+            }
+
+        .add-to-cart-output {
+            background-color: #fff;
+            text-decoration: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 100%;
+            height: 40px;
+            margin-top: 2px;
+            color: #a88100;
+            background: #f8f3e2;
+            border: 1px solid #a88100;
+        }
+
+        .add-to-cart-text {
+            background-color: #fff;
+            text-decoration: none;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            width: 100%;
+            height: 40px;
+            margin-top: 2px;
+            color: #8f8f8f;
+            border: 1px solid #8f8f8f;
+        }
+    </style>
+{% endblock %}

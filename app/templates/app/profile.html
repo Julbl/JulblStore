@@ -1,0 +1,111 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+
+<h2>Заказы</h2>
+
+<hr />
+
+{% if not orders %}
+<p>Вы не оставляли ни одного заказа.</p>
+<p><a href="{% url 'product_list' %}">Перейти в магазин</a></p>
+{% else %}
+  
+{% for order in orders %}
+<table class="order-table">
+    <caption>
+        Заказ №{{ forloop.counter }}
+    </caption>
+
+    <thead>
+        <tr>
+        <th>Товар</th>
+        <th>Цена</th>
+        <th>Количество</th>
+        <th>Сумма</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for order_item in order.order_items %}
+        <tr id="order-item-{{ order_item.id }}">
+            <td class="order-item">
+                <img class="order-item-image" src="{{ order_item.product.image.url }}" alt="{{ order_item.product.name }}">
+                <div class="order-item-details">
+                    <h3>{{ order_item.product.name }}</h3>
+                    <p>{{ order_item.product.description }}</p>
+                </div>
+            </td>
+
+            <td>{{ order_item.product.price }} руб.</td>
+
+            <td class="quantity-column">
+                <output id="quantity-display-{{ order_item.id }}">{{ order_item.quantity }}</output>
+            </td>
+
+            <td id="price-{{ order_item.id }}">{{ order_item.sum }} руб.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+    <tfoot>
+        <tr>
+            <td colspan="3" style="text-align: left; color: purple;">
+                Статус: <b>{{ order.status_ }}</b>
+            </td>
+            <td id="total">Итого: {{ order.total }} руб.</td>
+        </tr>
+    </tfoot>
+</table>
+{% endfor %}
+
+<style>
+    .order-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .order-table th, .order-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+
+    .order-table caption {
+        font-size: 24px;
+        background: rgb(147, 112, 219);
+        color: #fff;
+    }
+
+    .order-table th {
+        background: #ffe9fe;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+    }
+
+    .order-item-image {
+      width: 2.5cm;
+      height: 2.5cm;
+      margin-right: 8px;
+      object-fit: cover;
+    }
+
+    .order-item-details {
+      flex: 1;
+      text-align: left;
+    }
+
+    .quantity-column {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .quantity-display {
+      margin: 0 10px;
+    }
+</style>
+
+{% endif %}
+{% endblock %}

@@ -1,0 +1,171 @@
+﻿{% extends "app/layout.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="post">
+        <div class="post-header">
+            <h1>{{ post_1.title }}</h1>
+            <br>
+            <br>
+        </div>
+        <div class="blogpost">
+            {% if post_1.image and post_1.image.url != '/media/temp.jpg' %}
+            <img class="blogpost-image" src="{{ post_1.image.url }}" alt="Картинка статьи блога" width="350" />
+            {% endif %}
+            <div class="post-content">
+                <p class="blogpost-content">{{post_1.content|linebreaksbr}}</p>
+                <div class="blogpost-comment">
+                    {% if user.is_authenticated %}
+                    <h3 class="blogpost-comment-title">Добавить комментарий</h3>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div>
+                            {{ form.as_p }}
+                            <button type="submit" class="save btn btn-default">Отправить комментарий</button>
+                        </div>
+                    </form>
+                    {% else %}
+                    <h3 class="blogpost-comment-title">Для добавления комментария, пожалуйста, авторизуйтесь или создайте аккаунт</h3>
+                    {% endif %}
+                </div>
+                <br />
+                <hr class="blogpost-line" />
+
+                {% for comment in comments %}
+                <div class="comment">
+                    <!--<hr class="comment-line" />-->
+                    <time class="comment-date">{{comment.date}}</time>
+                    <h5 class="comment-author">{{comment.author}}</h5>
+                    <p class="comment-text">{{comment.text|linebreaksbr}}</p>
+                </div>
+                {% endfor %}
+                <br>
+                <a class="save btn btn-default" href="{% url 'blog' %}">Назад</a>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+
+    .blogpost {
+        background-color: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px 20px 86px;
+    }
+
+    .blogpost-image {
+        box-sizing: border-box;
+        max-width: 100%;
+        margin-left: 4px;
+        margin-bottom: 4px;
+        float: right;
+        border: 1px solid black;
+        border-radius: 5px;
+        transition: transform 0.6s ease;
+    }
+
+        .blogpost-image:hover {
+            transform: scale(2, 2) translate(-25%, 25%);
+        }
+
+    @media screen and (max-width: 768px) {
+        .blogpost-image {
+            margin: 0;
+            width: 100%;
+            transition: 0s;
+            touch-action: auto;
+        }
+
+        .blogpost-image:hover {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            max-width: 96vw;
+            max-height: 96vh;
+            z-index: 10000;
+        } 
+    }
+
+    .blogpost-content {
+        font-size: 18px;
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 20px;
+    }
+
+        .blogpost-content a {
+            color: black;
+        }
+
+            .blogpost-content a:hover {
+                text-decoration: underline;
+            }
+
+    .blogpost-comment {
+        margin-top: 40px;
+    }
+
+    .blogpost-comment-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .comment {
+        background-color: #f7f7f7;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        margin-top: 40px;
+    }
+
+    .comment-line {
+        border: 0;
+        border-top: 1px solid #ddd;
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    .comment-date {
+        font-size: 14px;
+        color: #888;
+        margin-bottom: 5px;
+    }
+
+    .comment-author {
+        font-size: 16px;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+    }
+
+    .comment-text {
+        font-size: 14px;
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 10px;
+    }
+
+    textarea {
+        display: block;
+        box-sizing: border-box;
+        width: 60%;
+        min-width: auto;
+        max-width: none;
+        height: 120px;
+        padding: 4px 8px;
+        resize: vertical;
+    }
+
+    @media screen and (max-width: 768px) {
+        textarea {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

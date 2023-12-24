@@ -1,0 +1,135 @@
+﻿{% extends "app/layout.html" %}
+{% load static %}
+
+{% block content %}
+<head>
+    <link href="/docs/5.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<h1 class="title">{{ title }}</h1>
+<br />
+<div class="posts">
+    {% for post in posts %}
+    <div class="posts__item">
+        <!--<hr class="posts__item-line"/>-->
+        <div class="album py-5 bg-light">
+            <div class="container">
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                    <div class="col">
+                        <div class="card shadow-sm">
+                            <svg class="bd-placeholder-img card-img-top" width="100%" height="225" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false">
+                                <title>{{ post.title }}</title>
+                                <rect width="100%" height="100%" fill="#9370DB" />
+                                <text x="50%" y="50%" font-size="2em" fill="#eceeef" dy=".3em">{{ post.title }}</text>
+                            </svg>
+
+                            <div class="card-body">
+                                <p class="card-text">{{ post.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group">
+                                        <a class="posts__item-body-open" href="{% url 'blogpost' parametr=post.id %}">далее</a>
+                                    </div>
+                                    <small class="text-muted">{{ post.posted }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<style>
+
+    .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+    }
+
+    @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+            font-size: 3.5rem;
+        }
+    }
+
+
+    .posts {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-gap: 2rem;
+    }
+
+    .posts__item {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background-color: #fff;
+        box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+
+        .posts__item:hover {
+            transform: translateY(-10px);
+        }
+
+    .posts__item-line {
+        margin: 0;
+        border: none;
+        height: 1px;
+        background-color: #eee;
+    }
+
+    .posts__item-body {
+        padding: 1rem;
+    }
+
+    .posts__item-body-title {
+        font-size: 2rem;
+        margin: 0;
+    }
+
+    .posts__item-body-posted {
+        font-size: 1.5rem;
+        color: #999;
+        margin: 0;
+    }
+
+    .posts__item-body-description {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-text {
+        padding: 2px 6px;
+    }
+
+    .posts__item-body-open {
+        padding: 10px 20px;
+        margin-right: 6px;
+        display: inline-block;
+        background-color: mediumpurple;
+        color: #fff;
+        border-radius: 4px;
+        text-decoration: none;
+    }
+
+        .posts__item-body-open:hover {
+            color: #fff;
+            background-color: hotpink;
+            text-decoration: none;
+        }
+
+    @media screen and (max-width: 768px) {
+        .posts {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

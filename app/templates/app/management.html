@@ -1,0 +1,30 @@
+{% extends "app/layout.html" %}
+
+{% block content %}
+
+<div class="jumbotron">
+    <h1>Управление</h1>
+    <p class="lead">
+		Раздел, содержащий различные формы и таблицы для управления содержимым сайта.
+    </p>
+</div>
+
+<div class="row">
+    <a href="{% url 'manage_orders' %}" class="col-md-4 btn btn-primary btn-large">Управление заказами</a>
+    <a href="{% url 'manage_blog' %}" class="col-md-4 btn btn-primary btn-large">Управление блогом</a>
+    <a href="{% url 'manage_products' %}" class="col-md-4 btn btn-primary btn-large">Управление товарами</a>
+    <a href="{% url 'manage_feedback' %}" class="col-md-4 btn btn-primary btn-large">Обратная связь</a>
+    <a href="{% url 'manage_new_post' %}" class="col-md-4 btn btn-success btn-large">Новая статья</a>
+    <a href="{% url 'manage_new_product' %}" class="col-md-4 btn btn-success btn-large">Новый товар</a>
+</div>
+
+<style>
+    @media screen and (max-width: 768px) {
+        .col-md-4 {
+            width: 100% !important;
+            margin-bottom: 20px;
+        }
+    }
+</style>
+
+{% endblock %}

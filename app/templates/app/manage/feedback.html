@@ -1,0 +1,153 @@
+{% extends "app/layout.html" %}
+{% load static %}
+
+
+{% block content %}
+{% for data in feedback %}
+<form class="form" method="post">
+    <h3>Отзыв №{{ data.id }}</h3>
+    <ul>
+        <li><span>Имя:</span> {{ data.name }}</li>
+        <br>
+        <li><span>Город:</span> {{ data.city }}</li>
+        <br>
+        <li><span>Пол:</span> {{ data.gender }}</li>
+        <br>
+        <li><span>Работа:</span> {{ data.occupation }}</li>
+        <br>
+        <li><span>В интернете:</span> {{ data.internet }}</li>
+        <br>
+        <li>
+            <span>Получать новости сайта на e_mail:</span>
+            {{ data.notice }}
+        </li>
+        <br>
+        <li><span>E-mail:</span> {{ data.email }}</li>
+        <br>
+        <li><span>Информация о себе:</span> {{ data.message }} </li>
+    </ul>
+</form>
+{% endfor %}
+
+<style>
+    select {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #666;
+    }
+
+    option {
+        padding: 5px 0;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    input:focus,
+    textarea:focus {
+        background-color: #9370DB;
+    }
+
+    #submit-btn:hover {
+        color: white;
+        background-color: #9370DB;
+    }
+
+    textarea {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        min-width: auto;
+        max-width: none;
+        height: 120px;
+        padding: 4px 8px;
+        border: 1px solid #666;
+        border-radius: 5px;
+        resize: vertical;
+    }
+
+    input[type=text],
+    input[type=email] {
+        display: block;
+        box-sizing: border-box;
+        width: 100%;
+        padding: 4px 8px;
+        border: 1px solid #666;
+        border-radius: 5px;
+    }
+
+    input[type=checkbox] {
+        transform: scale(1.5);
+        padding: 10px;
+        margin: 3px;
+    }
+
+    input[type=radio] {
+        transform: scale(1.5);
+        padding: 10px;
+        margin: 3px;
+    }
+
+    .body-content {
+        padding: 20px 6px;
+    }
+
+    .container.body-content {
+        max-width: 100%;
+    }
+
+    .form {
+        width: 600px;
+        max-width: 100%;
+        padding: 32px;
+        margin: auto;
+        border-radius: 10px;
+        box-shadow: 0 4px 16px #ccc;
+        font-family: sans-serif;
+        letter-spacing: 1px;
+        margin-bottom: 20px;
+    }
+
+    .form h3 {
+        margin-top: 0;
+        margin-bottom: 20px;
+    }
+
+    .form__input,
+    .form__button {
+        font-family: sans-serif;
+        letter-spacing: 1px;
+        font-size: 16px;
+    }
+
+    .form__title {
+        position: relative;
+        margin: 0 0 32px 0;
+        font-weight: normal;
+    }
+
+    .form__group {
+        position: relative;
+        margin-bottom: 32px;
+    }
+
+    .form__label {
+        position: absolute;
+        top: 0;
+        z-index: -1;
+        color: #9e9e9e;
+        transition: 0.3s;
+    }
+
+    .form__input {
+        width: 100%;
+        padding: 0 0 10px 0;
+        border: none;
+        border-bottom: 1px solid #e0e0e0;
+        background-color: transparent;
+        outline: none;
+        transition: 0.3s;
+    }
+</style>
+{% endblock %}
